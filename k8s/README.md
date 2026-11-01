@@ -46,8 +46,10 @@ After the k3s app is running:
 ```sh
 cd ~/StoryLeaf
 git pull
-bash k8s/enable-tls.sh
+TLS_HOST=storyleaf.example.com bash k8s/enable-tls.sh
 ```
+
+Replace `storyleaf.example.com` with your own hostname locally; never commit personal hostnames. Existing installations can omit `TLS_HOST` to reuse the current Ingress hostname and certificate Secret.
 
 Open `https://storyleaf.example.com` after making that hostname resolve to `192.168.178.53`. No public DNS or router changes are made by the script. For a quick local test on a computer, add `192.168.178.53 storyleaf.example.com` to its hosts file. For phones you need a DNS mapping accessible to those devices.
 
@@ -67,7 +69,7 @@ kubectl -n storyleaf create secret tls storyleaf-tls \
 TLS_SECRET_NAME=storyleaf-tls bash k8s/enable-tls.sh
 ```
 
-Renew imported certificates through your existing certificate-management process. To use a different hostname, edit both occurrences in `ingress-tls.yaml` and the hosts array in `enable-tls.sh` before running it. This is deliberately separate from `deploy.sh`, so regular app updates preserve the existing Ingress.
+Renew imported certificates through your existing certificate-management process. Set `TLS_HOST` to use a different hostname. `ingress-tls.yaml` is an example template; the script generates the actual Ingress from local settings. This is deliberately separate from `deploy.sh`, so regular app updates preserve the existing Ingress.
 
 Verify TLS without changing DNS, from a machine with curl:
 
