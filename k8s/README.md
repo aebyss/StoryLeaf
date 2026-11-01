@@ -14,7 +14,7 @@ The script builds with Podman, imports the image into local k3s containerd, crea
 
 If the k3s node name differs from `hostname -s`, find it using `kubectl get nodes`, then run `K3S_NODE=YOUR_NODE bash k8s/deploy.sh`. Run on that node itself, not another machine. Keep the `storyleaf-local-image=true` label on only the node where you imported the image; this is a simple one-node deployment strategy.
 
-If `.env` is missing, copy `.env.example` and set the shared FreshRSS API URL. Each person enters their own username and API password in the app. Legacy `FRESHRSS_USER`, `FRESHRSS_API_PASSWORD`, `APP_USER`, and `APP_PASSWORD` are ignored and should be removed. Old Ollama variables are also ignored.
+If `.env` is missing, copy `.env.example` and set the shared FreshRSS API URL. Each person enters their own username and API password in the app. Legacy `FRESHRSS_USER`, `FRESHRSS_API_PASSWORD`, `APP_USER`, and `APP_PASSWORD` are ignored and should be removed.
 
 If port 30088 is already allocated to another Kubernetes Service, choose another free NodePort in `storyleaf.yaml`. The script does not change router/firewall rules; NodePort listens on node interfaces, so LAN-only access assumes your existing firewall permits only your intended networks. Optional HTTPS is configured separately below; login uses HTTPS by default.
 
