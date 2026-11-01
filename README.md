@@ -2,6 +2,10 @@
 
 A self-hosted FreshRSS reader with category selection and a visual story interface. Tap a category chip such as DevOps or Tech, see its ten newest entries in the circular stories row, and swipe through their pictures, headlines, and short feed excerpts. Viewed stories have muted rings. The home screen keeps a compact header without a hero banner. Keeps the original warm palette and serif headlines. No Ollama, LLM, model download, Python packages, or database required.
 
+## Run inside k3s
+
+For the same LAN-only HTTP setup inside k3s, use [the simple k3s instructions](k8s/README.md): `bash k8s/deploy.sh` from this checkout on your Pi.
+
 ## Start
 
 1. Copy `.env.example` to `.env`.
