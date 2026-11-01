@@ -1,0 +1,27 @@
+# Uses Traefik's existing default certificate handling, like your Nextcloud route.
+# For an explicit certificate, add secretName under tls (in the storyleaf namespace).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: storyleaf-tls
+  namespace: storyleaf
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - storyleaf.example.com
+      # secretName: storyleaf-tls
+  rules:
+    - host: storyleaf.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: storyleaf
+                port:
+                  number: 8080

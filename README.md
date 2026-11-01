@@ -4,7 +4,7 @@ A self-hosted FreshRSS reader with category selection and a visual story interfa
 
 ## Run inside k3s
 
-For the same LAN-only HTTP setup inside k3s, use [the simple k3s instructions](k8s/README.md): `bash k8s/deploy.sh` from this checkout on your Pi.
+For the same LAN-only HTTP setup inside k3s, use [the simple k3s instructions](k8s/README.md): `bash k8s/deploy.sh` from this checkout on your Pi. Optional TLS through your existing Traefik: `bash k8s/enable-tls.sh` (see certificate and hostname requirements in that guide).
 
 ## Start
 
