@@ -1,6 +1,6 @@
 # Storyleaf
 
-A self-hosted FreshRSS reader with category selection and a visual story interface. Choose DevOps (or any FreshRSS category), see its ten newest entries, and swipe through their pictures, headlines, and short feed excerpts. Keeps the original warm palette and serif headlines. No Ollama, LLM, model download, Python packages, or database required.
+A self-hosted FreshRSS reader with category selection and a visual story interface. Tap a category chip such as DevOps or Tech, see its ten newest entries in the circular stories row, and swipe through their pictures, headlines, and short feed excerpts. Viewed stories have muted rings. The home screen keeps a compact header without a hero banner. Keeps the original warm palette and serif headlines. No Ollama, LLM, model download, Python packages, or database required.
 
 ## Start
 
@@ -59,7 +59,7 @@ python -m unittest discover -s tests -v
 node --check public/app.js
 ```
 
-Tests cover upstream category filtering, request encoding, newest-first limits, feed text/image extraction, missing content, authentication, and removal of the Ollama endpoint. Live server connectivity and mobile rendering need verification on your network; local socket listeners are blocked in the build environment.
+Tests cover upstream category filtering, request encoding, newest-first limits, feed text/image extraction, missing content, authentication, and removal of the Ollama endpoint. The demo was checked in a browser for category switching, circular story selection, and next-story navigation. Live FreshRSS connectivity and mobile-device rendering still need verification on your network.
 
 For logs: `podman logs --tail 50 storyleaf_storyleaf_1`. For a connection error, verify the exact API URL, API password, and Docker/Podman network access to FreshRSS.
 
