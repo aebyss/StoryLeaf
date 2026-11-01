@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: storyleaf-data
+  namespace: storyleaf
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,6 +16,8 @@ metadata:
   namespace: storyleaf
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: storyleaf
@@ -20,6 +33,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 10001
         runAsGroup: 10001
+        fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -29,6 +43,14 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+          env:
+            - name: SESSION_DB
+              value: /data/sessions.sqlite
+            - name: COOKIE_SECURE
+              value: "true"
+          volumeMounts:
+            - name: session-data
+              mountPath: /data
           envFrom:
             - secretRef:
                 name: storyleaf-env
@@ -53,6 +75,10 @@ spec:
               memory: 32Mi
             limits:
               memory: 256Mi
+      volumes:
+        - name: session-data
+          persistentVolumeClaim:
+            claimName: storyleaf-data
 ---
 apiVersion: v1
 kind: Service

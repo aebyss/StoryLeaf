@@ -1,6 +1,6 @@
 # Simple k3s deployment
 
-Same app, same `.env`, plain HTTP. No Ingress, certificate, domain, registry, Ollama, database, or volume is required. The NodePort Service exposes the app at `http://192.168.178.53:30088` on your current Pi.
+One shared Storyleaf instance, individual FreshRSS logins. The app uses an SQLite database on a 1 GiB PVC for persistent sessions and per-account bookmarks. Use the HTTPS Traefik route below for login; Secure cookies are enabled. The HTTP NodePort still exposes static pages, but authentication requires HTTPS.
 
 Run **on the Raspberry Pi that runs k3s**, inside your existing StoryLeaf checkout:
 
@@ -14,9 +14,9 @@ The script builds with Podman, imports the image into local k3s containerd, crea
 
 If the k3s node name differs from `hostname -s`, find it using `kubectl get nodes`, then run `K3S_NODE=YOUR_NODE bash k8s/deploy.sh`. Run on that node itself, not another machine. Keep the `storyleaf-local-image=true` label on only the node where you imported the image; this is a simple one-node deployment strategy.
 
-If `.env` is missing, copy `.env.example` and set your FreshRSS username, API password and API URL first. Old Ollama variables are ignored.
+If `.env` is missing, copy `.env.example` and set the shared FreshRSS API URL. Each person enters their own username and API password in the app. Legacy `FRESHRSS_USER`, `FRESHRSS_API_PASSWORD`, `APP_USER`, and `APP_PASSWORD` are ignored and should be removed. Old Ollama variables are also ignored.
 
-If port 30088 is already allocated to another Kubernetes Service, choose another free NodePort in `storyleaf.yaml`. The script does not change router/firewall rules; NodePort listens on node interfaces, so LAN-only access assumes your existing firewall permits only your intended networks. No HTTPS is configured.
+If port 30088 is already allocated to another Kubernetes Service, choose another free NodePort in `storyleaf.yaml`. The script does not change router/firewall rules; NodePort listens on node interfaces, so LAN-only access assumes your existing firewall permits only your intended networks. Optional HTTPS is configured separately below; login uses HTTPS by default.
 
 After confirming the k3s app works, optionally stop the older Podman copy:
 
@@ -24,7 +24,7 @@ After confirming the k3s app works, optionally stop the older Podman copy:
 podman-compose stop storyleaf
 ```
 
-Future updates: `git pull` then `bash k8s/deploy.sh`. This refreshes the image and credentials and restarts the pod. Bookmarks and category preferences are browser-local and tied to the URL; moving from port 8088 to 30088 starts a separate browser storage area.
+Future updates: `git pull` then `bash k8s/deploy.sh`. This refreshes the image and credentials and restarts the pod. Bookmarks and preferences now belong to the signed-in account and sync through this instance. Legacy browser-only bookmarks are not automatically assigned to anyone.
 
 Inspect:
 
@@ -33,7 +33,7 @@ kubectl -n storyleaf get pods,svc
 kubectl -n storyleaf logs deployment/storyleaf
 ```
 
-Remove just this deployment and its credentials with `kubectl delete namespace storyleaf`. This does not remove FreshRSS, Nextcloud, the old Podman app, or the imported image.
+The PVC now contains upstream authentication tokens, sessions, and saved stories; back it up securely. Removing the namespace can delete that persistent data. Remove this deployment and its data with `kubectl delete namespace storyleaf`. This does not remove FreshRSS, Nextcloud, the old Podman app, or the imported image.
 
 Validation: shell syntax and manifest structure were checked locally. The deployment still needs to run on your k3s cluster; no cluster access was available during preparation.
 
@@ -81,3 +81,9 @@ curl --resolve storyleaf.example.com:443:192.168.178.53 \
 A certificate error means trust or hostname coverage still needs configuring. HTTP 200 (or 401 if app login is enabled) shows the route is responding. The route is reachable wherever your existing Traefik listener is reachable; if Traefik also accepts internet traffic, apply your existing LAN access policy to this route before using it as a LAN-only service.
 
 References: [Traefik TLS annotations](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), [Kubernetes Ingress TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls).
+
+## Multi-user upgrade
+
+Run `git pull` then `bash k8s/deploy.sh`, and open your existing HTTPS URL. Existing Ingress and TLS Secret are preserved. A PVC named `storyleaf-data` is created using the cluster’s default StorageClass (normally local-path in k3s). The deployment uses Recreate strategy to attach its single ReadWriteOnce volume without competing pods. If the pod stays Pending, check `kubectl -n storyleaf get pvc` and `kubectl -n storyleaf describe pod POD_NAME`.
+
+Only the server URL remains shared in `.env`; every person signs in with their own FreshRSS API password. Keep one replica for this SQLite/local-volume deployment. Deleting the PVC deletes sessions and saved preferences. Cookie expiry is 30 days; a revoked FreshRSS API token requires signing in again. Basic Authentication settings no longer apply.

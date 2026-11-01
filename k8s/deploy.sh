@@ -24,4 +24,5 @@ kubectl apply -f k8s/storyleaf.yaml
 # Also replaces existing pods when a new image was imported under the same tag.
 kubectl -n storyleaf rollout restart deployment/storyleaf
 kubectl -n storyleaf rollout status deployment/storyleaf --timeout=120s
-printf '\nStoryleaf is ready on HTTP port 30088 of your node IP.\n'
+printf '\nStoryleaf is ready. Open your existing HTTPS URL to sign in.\n'
+printf 'Secure session cookies are enabled; plain HTTP is not supported for sign-in.\n'

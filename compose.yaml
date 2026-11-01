@@ -4,4 +4,11 @@ services:
     ports:
       - "${APP_PORT:-8088}:8080"
     env_file: .env
+    environment:
+      SESSION_DB: /data/sessions.sqlite
+      COOKIE_SECURE: "true"
+    volumes:
+      - storyleaf-data:/data
     restart: unless-stopped
+volumes:
+  storyleaf-data:
